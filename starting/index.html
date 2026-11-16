@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineVault — Stream Cinematic Masterpieces</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+   <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <!-- 1. Header & Navigation -->
+    <header id="header">
+        <div class="logo-container">
+            <i class="fa-solid fa-clapperboard logo-icon"></i>
+            <span class="logo-text">CineVault</span>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#" class="nav-link active">Home</a></li>
+            <li><a href="#movies-section" class="nav-link">Movies</a></li>
+            <li><a href="#movies-section" class="nav-link">Series</a></li>
+            <li><a href="#trending-section" class="nav-link">Top 10</a></li>
+            <li><a href="#" class="nav-link" id="myListNav">My List <span id="listCount" style="background:var(--accent-red); padding: 0.1rem 0.4rem; border-radius:10px; font-size:0.75rem;">0</span></a></li>
+        </ul>
+        <div class="header-actions">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search movies, actors...">
+            </div>
+            <div class="user-profile" title="User Profile">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" alt="Avatar" class="avatar">
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. Hero Section -->
+    <section class="hero">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fa-solid fa-fire"></i> Featured Masterpiece</div>
+            <h1 class="hero-title" id="heroTitle">Interstellar Odyssey</h1>
+            <div class="hero-meta">
+                <span class="meta-item rating"><i class="fa-solid fa-star"></i> 8.9</span>
+                <span class="meta-item">2024</span>
+                <span class="age-rating">PG-13</span>
+                <span class="meta-item"><i class="fa-solid fa-clock"></i> 2h 49m</span>
+            </div>
+            <div class="hero-genres">
+                <span class="genre-tag">Sci-Fi</span>
+                <span class="genre-tag">Adventure</span>
+                <span class="genre-tag">Drama</span>
+            </div>
+            <p class="hero-desc" id="heroDesc">When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="openModalById(1)"><i class="fa-solid fa-play"></i> Watch Trailer</button>
+                <button class="btn btn-secondary" onclick="openModalById(1)"><i class="fa-solid fa-circle-info"></i> More Info</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container for Catalog -->
+    <div class="container" id="movies-section">
+        <div class="section-header">
+            <h2 class="section-title">Explore Cinematic Universe</h2>
+        </div>
+
+        <!-- 3. Categories / Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="tab-btn active" data-filter="all">All Releases</button>
+            <button class="tab-btn" data-filter="Trending">Trending</button>
+            <button class="tab-btn" data-filter="Action">Action & Thriller</button>
+            <button class="tab-btn" data-filter="Sci-Fi">Sci-Fi & Space</button>
+            <button class="tab-btn" data-filter="Drama">Drama</button>
+            <button class="tab-btn" data-filter="Animation">Animation</button>
+        </div>
+
+        <!-- 4. Movie Grid -->
+        <div class="movie-grid" id="movieGrid">
+            <!-- Dynamically populated via JS -->
+        </div>
+    </div>
+
+    <!-- 5. Trending / Top 10 Section -->
+    <section class="top10-section" id="trending-section">
+        <div class="container" style="padding: 0;">
+            <div class="section-header">
+                <h2 class="section-title">Top 10 Movies Today</h2>
+            </div>
+            <div class="top10-carousel" id="top10Carousel">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="logo-container" style="justify-content: center;">
+                <i class="fa-solid fa-clapperboard logo-icon"></i>
+                <span class="logo-text">CineVault</span>
+            </div>
+            <p>Your premier destination for high-definition cinematic experiences. Stream thousands of blockbuster movies, award-winning indie films, and immersive series anytime, anywhere.</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Help Center</a>
+                <a href="#" class="footer-link">Cookie Preferences</a>
+                <a href="#" class="footer-link">Corporate Information</a>
+            </div>
+            <div class="social-icons">
+                <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="social-icon"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+            <p>&copy; 2026 CineVault Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 6. Detailed Modal View -->
+    <div class="modal-overlay" id="movieModal">
+        <div class="modal-container">
+            <button class="modal-close-btn" id="modalCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-hero" id="modalHeroBg">
+                <div class="modal-hero-overlay">
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="simulatePlay()"><i class="fa-solid fa-play"></i> Play Movie</button>
+                        <button class="btn btn-secondary" id="modalWatchlistBtn"><i class="fa-solid fa-plus"></i> My List</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-title-row">
+                    <div>
+                        <h2 class="modal-title" id="modalTitle">Movie Title</h2>
+                        <div class="modal-meta-list" id="modalMetaList">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <p class="modal-desc" id="modalDesc">Detailed movie description goes here...</p>
+                <div class="modal-cast-crew">
+                    <div>
+                        <div class="crew-label">Director</div>
+                        <div class="crew-value" id="modalDirector">Christopher Nolan</div>
+                    </div>
+                    <div>
+                        <div class="crew-label">Main Cast</div>
+                        <div class="crew-value" id="modalCast">Matthew McConaughey, Anne Hathaway</div>
+                    </div>
+                    <div>
+                        <div class="crew-label">Studio</div>
+                        <div class="crew-value" id="modalStudio">Legendary Pictures</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastBox">
+        <i class="fa-solid fa-circle-check" id="toastIcon"></i>
+        <div>
+            <div style="font-weight:600; font-size:0.95rem;" id="toastTitle">Added to My List</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);" id="toastSubtitle">Movie saved successfully</div>
+        </div>
+    </div>
+
+    <!-- JavaScript Data & Interactivity -->
+    <script src="index.js"></script>
+</body>
+</html>
