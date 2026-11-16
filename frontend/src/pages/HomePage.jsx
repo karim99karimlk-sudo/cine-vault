@@ -15,7 +15,7 @@ import {
 } from '../services/tmdb';
 import { useDebounce } from '../hooks/useDebounce';
 import { useWatchlist } from '../hooks/useWatchlist';
-import '../home/HomePage.css';
+import './HomePage.css';
 
 const CATEGORY_LABELS = {
   popular: 'Popular Movies',

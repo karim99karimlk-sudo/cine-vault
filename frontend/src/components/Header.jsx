@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import '../component/header.css';
+import './header.css';
 
 export default function Header({
   searchQuery = '',
