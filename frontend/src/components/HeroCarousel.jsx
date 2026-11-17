@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar, faCheckToSlot } from '@fortawesome/free-solid-svg-icons';
 import { getImageUrl } from '../services/tmdb';
 import './HeroCarousel.css';
 
@@ -106,11 +108,15 @@ export default function HeroCarousel({
         <h1 className="cv-hero-title">{activeMovie.title}</h1>
         <div className="cv-hero-meta">
           <span className="cv-meta-rating">
-            ⭐ {activeMovie.vote_average ? activeMovie.vote_average.toFixed(1) : 'NR'}
+            <FontAwesomeIcon icon={faStar} />{' '}
+            {activeMovie.vote_average ? activeMovie.vote_average.toFixed(1) : 'NR'}
           </span>
           <span>{activeMovie.release_date ? activeMovie.release_date.slice(0, 4) : 'TBA'}</span>
           <span className="cv-age-tag">HD</span>
-          <span>🗳️ {activeMovie.vote_count?.toLocaleString() || 0} votes</span>
+          <span>
+            <FontAwesomeIcon icon={faCheckToSlot} />{' '}
+            {activeMovie.vote_count?.toLocaleString() || 0} votes
+          </span>
         </div>
 
         <div className="cv-hero-genres">

@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { getImageUrl } from '../services/tmdb';
 import './MovieCard.css';
 
@@ -81,7 +83,9 @@ export default function MovieCard({
             <span className="cv-card-year">{releaseYear}</span>
             <span className="cv-card-genre">{primaryGenreName}</span>
           </div>
-          <span className="cv-meta-rating">⭐ {formattedRating}</span>
+          <span className="cv-meta-rating">
+            <FontAwesomeIcon icon={faStar} /> {formattedRating}
+          </span>
         </div>
       </div>
     </article>

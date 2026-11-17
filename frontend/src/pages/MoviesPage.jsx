@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
 import MovieCard from '../components/MovieCard';
 import { SkeletonGrid } from '../components/SkeletonCard';
 import { fetchMoviesByCategory, searchMovies } from '../services/tmdb';
@@ -188,7 +190,8 @@ export default function MoviesPage({
             className={`cv-pill-btn ${sortBy === 'rating' ? 'active' : ''}`}
             onClick={() => setSortBy('rating')}
           >
-            ⭐ Highest Rated
+            <FontAwesomeIcon icon={faStar} style={{ color: 'var(--accent-gold)', marginRight: '0.35rem' }} />
+            Highest Rated
           </button>
           <button
             type="button"

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar, faClock } from '@fortawesome/free-solid-svg-icons';
 import { fetchMovieDetails, fetchTvDetails, getImageUrl } from '../services/tmdb';
 import './MovieModal.css';
 
@@ -194,9 +196,15 @@ export default function MovieModal({
           </div>
 
           <div className="cv-modal-meta">
-            <span className="cv-meta-rating">⭐ {rating}</span>
+            <span className="cv-meta-rating">
+              <FontAwesomeIcon icon={faStar} /> {rating}
+            </span>
             <span>{releaseYear}</span>
-            {details?.runtime ? <span>⏱️ {formatRuntime(details.runtime)}</span> : null}
+            {details?.runtime ? (
+              <span>
+                <FontAwesomeIcon icon={faClock} /> {formatRuntime(details.runtime)}
+              </span>
+            ) : null}
             {details?.status && <span className="cv-age-tag">{details.status}</span>}
           </div>
 
@@ -354,7 +362,9 @@ export default function MovieModal({
                             <div className="cv-rec-title">{rec.title}</div>
                             <div className="cv-rec-meta">
                               <span>{recYear}</span>
-                              <span className="cv-meta-rating">⭐ {recRating}</span>
+                              <span className="cv-meta-rating">
+                                <FontAwesomeIcon icon={faStar} /> {recRating}
+                              </span>
                             </div>
                           </div>
                         </div>

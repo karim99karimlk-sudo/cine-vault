@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faStar } from '@fortawesome/free-solid-svg-icons';
 import { searchMovies, getImageUrl } from '../services/tmdb';
 import { useDebounce } from '../hooks/useDebounce';
 import './header.css';
@@ -214,7 +216,7 @@ export default function Header({
       {/* Header Actions (Search & Profile) */}
       <div className="cv-header-actions">
         <div className="cv-search-box" ref={searchBoxRef}>
-          <span className="cv-search-icon">🔍</span>
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="cv-search-icon" />
           <input
             type="text"
             className="cv-search-input"
@@ -288,7 +290,9 @@ export default function Header({
                               <span>•</span>
                               <span>{primaryGenre}</span>
                               <span>•</span>
-                              <span className="cv-search-result-rating">⭐ {rating}</span>
+                              <span className="cv-search-result-rating">
+                                <FontAwesomeIcon icon={faStar} /> {rating}
+                              </span>
                             </div>
                           </div>
                         </button>
