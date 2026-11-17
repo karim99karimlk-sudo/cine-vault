@@ -212,8 +212,10 @@ body {
   transition: var(--transition);
 }
 
-.cv-search-result-item:hover {
-  background: rgba(255, 255, 255, 0.07);
+.cv-search-result-item:hover,
+.cv-search-result-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 2px solid var(--accent-red);
 }
 
 .cv-search-result-thumb {

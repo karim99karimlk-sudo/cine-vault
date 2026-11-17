@@ -230,23 +230,23 @@ export async function searchMovies(query, page = 1) {
 }
 
 /**
- * Fetch full movie details including credits and videos (/movie/{id}?append_to_response=credits,videos)
+ * Fetch full movie details including credits, videos, recommendations, and watch providers
  * @param {number|string} movieId
  */
 export async function fetchMovieDetails(movieId) {
   return tmdbFetch(`/movie/${movieId}`, {
-    append_to_response: 'credits,videos',
+    append_to_response: 'credits,videos,recommendations,watch/providers',
     language: 'en-US',
   });
 }
 
 /**
- * Fetch full TV show details including credits and videos (/tv/{id}?append_to_response=credits,videos)
+ * Fetch full TV show details including credits, videos, recommendations, and watch providers
  * @param {number|string} tvId
  */
 export async function fetchTvDetails(tvId) {
   const data = await tmdbFetch(`/tv/${tvId}`, {
-    append_to_response: 'credits,videos',
+    append_to_response: 'credits,videos,recommendations,watch/providers',
     language: 'en-US',
   });
   return {
@@ -277,12 +277,28 @@ export async function fetchGenres() {
 }
 
 /**
- * Fetch full actor/person details including movie credits (/person/{id}?append_to_response=movie_credits)
+ * Fetch full actor/person details including combined movie & TV credits (/person/{id}?append_to_response=combined_credits)
  * @param {number|string} personId
  */
 export async function fetchActorDetails(personId) {
-  return tmdbFetch(`/person/${personId}`, {
-    append_to_response: 'movie_credits',
+  const data = await tmdbFetch(`/person/${personId}`, {
+    append_to_response: 'combined_credits',
     language: 'en-US',
   });
+  const normalizedCast = (data.combined_credits?.cast || []).map((item) => ({
+    ...item,
+    media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie'),
+    title: item.title || item.name || 'Untitled',
+    release_date: item.release_date || item.first_air_date || '',
+  }));
+  return {
+    ...data,
+    combined_credits: {
+      ...data.combined_credits,
+      cast: normalizedCast,
+    },
+    movie_credits: {
+      cast: normalizedCast,
+    },
+  };
 }

@@ -128,11 +128,12 @@ function App() {
 
         {selectedMovie && (
           <MovieModal
-            key={selectedMovie.id}
+            key={`${selectedMovie.media_type || 'movie'}-${selectedMovie.id}`}
             movie={selectedMovie}
             isSaved={isInWatchlist(selectedMovie.id)}
             onClose={() => setSelectedMovie(null)}
             onToggleWatchlist={handleToggleWatchlist}
+            onSelectMovie={setSelectedMovie}
           />
         )}
 

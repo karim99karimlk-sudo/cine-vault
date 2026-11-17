@@ -17,11 +17,12 @@ export default function MovieCard({
       ? movie.vote_average.toFixed(1)
       : 'NR';
 
+  const isTv = movie.media_type === 'tv' || (!movie.title && Boolean(movie.name));
   const primaryGenreId = movie.genre_ids?.[0] || movie.genres?.[0]?.id;
   const primaryGenreName =
     (primaryGenreId && genreMap[primaryGenreId]) ||
     movie.genres?.[0]?.name ||
-    'Movie';
+    (isTv ? 'TV Series' : 'Movie');
 
   return (
     <article className="cv-card" onClick={() => onSelect(movie)}>
@@ -32,6 +33,7 @@ export default function MovieCard({
           className="cv-poster"
           loading="lazy"
         />
+        {isTv && <span className="cv-media-badge">TV</span>}
         <button
           type="button"
           className={`cv-bookmark-badge ${isSaved ? 'saved' : ''}`}

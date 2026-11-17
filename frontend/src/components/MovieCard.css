@@ -37,6 +37,23 @@
   transform: scale(1.08);
 }
 
+.cv-media-badge {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  background: rgba(229, 9, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 5px;
+  z-index: 3;
+  backdrop-filter: blur(4px);
+}
+
 .cv-bookmark-badge {
   position: absolute;
   top: 0.65rem;

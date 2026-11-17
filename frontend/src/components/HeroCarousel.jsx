@@ -33,6 +33,24 @@ export default function HeroCarousel({
     return () => clearInterval(timer);
   }, [slideCount, isPaused, nextSlide]);
 
+  // Keyboard ArrowLeft / ArrowRight navigation
+  useEffect(() => {
+    if (slideCount <= 1) return;
+    const handleKeyDown = (e) => {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || document.querySelector('.cv-modal-overlay')) {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key === 'ArrowRight') {
+        nextSlide();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [slideCount, prevSlide, nextSlide]);
+
   if (slideCount === 0) return null;
 
   const activeMovie = slides[safeIndex];

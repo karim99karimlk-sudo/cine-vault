@@ -15,6 +15,7 @@ export default function Header({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const debouncedQuery = useDebounce(searchQuery.trim(), 400);
   const searchBoxRef = useRef(null);
@@ -66,11 +67,13 @@ export default function Header({
       .then((data) => {
         if (!isMounted) return;
         setResults((data.results || []).slice(0, 8));
+        setHighlightedIndex(-1);
         setLoading(false);
       })
       .catch(() => {
         if (!isMounted) return;
         setResults([]);
+        setHighlightedIndex(-1);
         setLoading(false);
       });
 
@@ -84,6 +87,7 @@ export default function Header({
   const handleInputChange = (e) => {
     const val = e.target.value;
     setSearchQuery(val);
+    setHighlightedIndex(-1);
     if (val.trim()) {
       setLoading(true);
       setIsDropdownOpen(true);
@@ -97,13 +101,30 @@ export default function Header({
   const handleClearSearch = () => {
     setSearchQuery('');
     setResults([]);
+    setHighlightedIndex(-1);
     setLoading(false);
     setIsDropdownOpen(false);
   };
 
   const handleSelectResult = (movie) => {
     setIsDropdownOpen(false);
+    setHighlightedIndex(-1);
     onSelectMovie(movie);
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (!isDropdownOpen || results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev + 1) % results.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev <= 0 ? results.length - 1 : prev - 1));
+    } else if (e.key === 'Enter' && highlightedIndex >= 0 && results[highlightedIndex]) {
+      e.preventDefault();
+      handleSelectResult(results[highlightedIndex]);
+    }
   };
 
   return (
@@ -200,6 +221,7 @@ export default function Header({
             placeholder="Search movies & TV shows..."
             value={searchQuery}
             onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
             onFocus={() => {
               if (searchQuery.trim()) setIsDropdownOpen(true);
             }}
@@ -231,7 +253,7 @@ export default function Header({
                 </div>
               ) : (
                 <ul className="cv-search-results-list">
-                  {results.map((movie) => {
+                  {results.map((movie, idx) => {
                     const isTv = movie.media_type === 'tv';
                     const year = movie.release_date ? movie.release_date.slice(0, 4) : 'TBA';
                     const rating =
@@ -246,7 +268,8 @@ export default function Header({
                       <li key={`${movie.media_type || 'item'}-${movie.id}`}>
                         <button
                           type="button"
-                          className="cv-search-result-item"
+                          className={`cv-search-result-item ${idx === highlightedIndex ? 'active' : ''}`}
+                          onMouseEnter={() => setHighlightedIndex(idx)}
                           onClick={() => handleSelectResult(movie)}
                         >
                           <img

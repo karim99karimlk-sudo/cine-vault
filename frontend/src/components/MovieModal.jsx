@@ -15,6 +15,7 @@ export default function MovieModal({
   isSaved = false,
   onClose = () => {},
   onToggleWatchlist = () => {},
+  onSelectMovie = () => {},
 }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -89,6 +90,43 @@ export default function MovieModal({
     videos.find((v) => v.site === 'YouTube' && v.type === 'Trailer' && v.official) ||
     videos.find((v) => v.site === 'YouTube' && v.type === 'Trailer') ||
     videos.find((v) => v.site === 'YouTube');
+
+  // Extract Watch Providers (prioritizing US, GB, CA, or first available region)
+  const providersByRegion = details?.['watch/providers']?.results || {};
+  const regionData =
+    providersByRegion.US ||
+    providersByRegion.GB ||
+    providersByRegion.CA ||
+    Object.values(providersByRegion)[0] ||
+    null;
+
+  const watchProviders = (() => {
+    if (!regionData) return [];
+    const rawList = [
+      ...(regionData.flatrate || []),
+      ...(regionData.free || []),
+      ...(regionData.rent || []),
+      ...(regionData.buy || []),
+    ];
+    const seen = new Set();
+    return rawList
+      .filter((p) => {
+        if (!p || !p.provider_id || seen.has(p.provider_id)) return false;
+        seen.add(p.provider_id);
+        return true;
+      })
+      .slice(0, 6);
+  })();
+
+  // Extract up to 6 Recommendations ("More Like This")
+  const recommendations = (details?.recommendations?.results || [])
+    .slice(0, 6)
+    .map((item) => ({
+      ...item,
+      media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie'),
+      title: item.title || item.name || 'Untitled',
+      release_date: item.release_date || item.first_air_date || '',
+    }));
 
   return (
     <div className="cv-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={data.title}>
@@ -208,6 +246,28 @@ export default function MovieModal({
                 </div>
               </div>
 
+              {/* Where to Watch (Streaming Providers) */}
+              {watchProviders.length > 0 && (
+                <div className="cv-providers-section">
+                  <div className="cv-crew-label" style={{ marginBottom: '0.75rem' }}>
+                    Where to Watch
+                  </div>
+                  <div className="cv-providers-list">
+                    {watchProviders.map((provider) => (
+                      <div key={provider.provider_id} className="cv-provider-badge" title={provider.provider_name}>
+                        <img
+                          src={getImageUrl(provider.logo_path, 'w92')}
+                          alt={provider.provider_name}
+                          className="cv-provider-logo"
+                          loading="lazy"
+                        />
+                        <span className="cv-provider-name">{provider.provider_name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Top Cast Section */}
               {cast.length > 0 && (
                 <div className="cv-cast-section">
@@ -255,6 +315,51 @@ export default function MovieModal({
                       className="cv-modal-iframe"
                       loading="lazy"
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* More Like This (Recommendations) */}
+              {recommendations.length > 0 && (
+                <div className="cv-recommendations-section">
+                  <div className="cv-crew-label" style={{ marginBottom: '0.9rem' }}>
+                    More Like This
+                  </div>
+                  <div className="cv-recommendations-grid">
+                    {recommendations.map((rec) => {
+                      const recYear = rec.release_date ? rec.release_date.slice(0, 4) : 'TBA';
+                      const recRating =
+                        typeof rec.vote_average === 'number' && rec.vote_average > 0
+                          ? rec.vote_average.toFixed(1)
+                          : 'NR';
+                      return (
+                        <div
+                          key={`${rec.media_type}-${rec.id}`}
+                          className="cv-rec-card"
+                          onClick={() => onSelectMovie(rec)}
+                          title={rec.title}
+                        >
+                          <div className="cv-rec-poster-wrap">
+                            <img
+                              src={getImageUrl(rec.poster_path || rec.backdrop_path, 'w342')}
+                              alt={rec.title}
+                              className="cv-rec-poster"
+                              loading="lazy"
+                            />
+                            {rec.media_type === 'tv' && (
+                              <span className="cv-media-badge">TV</span>
+                            )}
+                          </div>
+                          <div className="cv-rec-info">
+                            <div className="cv-rec-title">{rec.title}</div>
+                            <div className="cv-rec-meta">
+                              <span>{recYear}</span>
+                              <span className="cv-meta-rating">⭐ {recRating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
