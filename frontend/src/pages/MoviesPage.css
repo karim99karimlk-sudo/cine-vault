@@ -1,0 +1,13 @@
+/* MOVIES PAGE */
+.cv-movies-page {
+  margin-top: 85px;
+}
+
+.cv-movies-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}

@@ -1,0 +1,165 @@
+/* MOVIE CARD */
+.cv-card {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.cv-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(229, 9, 20, 0.4);
+  box-shadow: var(--shadow-lg);
+  background-color: var(--bg-card-hover);
+}
+
+.cv-poster-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2/3;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+}
+
+.cv-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.cv-card:hover .cv-poster {
+  transform: scale(1.08);
+}
+
+.cv-bookmark-badge {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(10, 11, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: var(--transition);
+}
+
+.cv-bookmark-badge.saved,
+.cv-bookmark-badge:hover {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.cv-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 11, 14, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+.cv-card:hover .cv-card-overlay {
+  opacity: 1;
+}
+
+.cv-action-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: var(--accent-red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: var(--transition);
+  transform: scale(0.8);
+}
+
+.cv-card:hover .cv-action-circle {
+  transform: scale(1);
+}
+
+.cv-action-circle:hover {
+  background-color: white;
+  color: var(--accent-red);
+}
+
+.cv-action-circle.secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cv-action-circle.secondary:hover {
+  background-color: white;
+  color: var(--bg-primary);
+}
+
+.cv-card-info {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.cv-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cv-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.cv-card-submeta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+}
+
+.cv-card-year {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cv-card-genre {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.12rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMovieDetails, fetchTvDetails, getImageUrl } from '../services/tmdb';
+import './MovieModal.css';
 
 function formatRuntime(minutes) {
   if (!minutes || minutes <= 0) return 'N/A';

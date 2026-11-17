@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { SkeletonGrid } from '../components/SkeletonCard';
 import { fetchMoviesByCategory, searchMovies } from '../services/tmdb';
+import './MoviesPage.css';
 
 const CATEGORY_OPTIONS = [
   { id: 'popular', label: 'Popular Movies', shortLabel: 'Popular' },

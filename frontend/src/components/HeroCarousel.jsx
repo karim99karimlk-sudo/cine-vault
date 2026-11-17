@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getImageUrl } from '../services/tmdb';
+import './HeroCarousel.css';
 
 export default function HeroCarousel({
   movies = [],

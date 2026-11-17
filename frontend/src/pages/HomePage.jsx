@@ -12,6 +12,7 @@ import {
   fetchUpcomingMovies,
   searchMovies,
 } from '../services/tmdb';
+import './HomePage.css';
 
 function dedupeMovies(list) {
   const seen = new Set();

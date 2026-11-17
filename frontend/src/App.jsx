@@ -10,7 +10,6 @@ import WatchlistPage from './pages/WatchlistPage';
 import { fetchGenres } from './services/tmdb';
 import { useDebounce } from './hooks/useDebounce';
 import { useWatchlist } from './hooks/useWatchlist';
-import './pages/HomePage.css';
 import './App.css';
 
 function App() {

@@ -1,3 +1,5 @@
+import './SkeletonCard.css';
+
 /**
  * Loading skeleton placeholder for movie cards and hero banner.
  */

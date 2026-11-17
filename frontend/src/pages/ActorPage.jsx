@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { fetchActorDetails, getImageUrl } from '../services/tmdb';
 import MovieCard from '../components/MovieCard';
 import { SkeletonGrid } from '../components/SkeletonCard';
+import './ActorPage.css';
 
 function calculateAge(birthday, deathday) {
   if (!birthday) return null;

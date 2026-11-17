@@ -1,4 +1,5 @@
 import { getImageUrl } from '../services/tmdb';
+import './MovieCard.css';
 
 /**
  * Reusable MovieCard displaying poster, title, release year, formatted rating, primary genre, and watchlist toggle.

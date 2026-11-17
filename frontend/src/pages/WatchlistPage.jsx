@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
+import './WatchlistPage.css';
 
 export default function WatchlistPage({
   watchlist = [],
