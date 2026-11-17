@@ -85,9 +85,6 @@ export default function HeroCarousel({
 
       {/* Active Slide Content */}
       <div className="cv-hero-content" key={activeMovie.id}>
-        <div className="cv-hero-badge">
-          🔥 #{safeIndex + 1} Featured Spotlight
-        </div>
         <h1 className="cv-hero-title">{activeMovie.title}</h1>
         <div className="cv-hero-meta">
           <span className="cv-meta-rating">
@@ -151,6 +148,20 @@ export default function HeroCarousel({
           ))}
         </div>
       )}
+
+      {/* Scroll Down Indicator */}
+      <button
+        type="button"
+        className="cv-scroll-down-btn"
+        onClick={() =>
+          document.getElementById('movies')?.scrollIntoView({ behavior: 'smooth' })
+        }
+        aria-label="Scroll down to movies"
+        title="Scroll down"
+      >
+        <span className="cv-scroll-down-text">Scroll</span>
+        <span className="cv-scroll-down-icon">⌄</span>
+      </button>
     </section>
   );
 }

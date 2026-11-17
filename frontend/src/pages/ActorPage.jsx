@@ -129,7 +129,7 @@ export default function ActorPage({
 
         <div className="cv-actor-details">
           <div className="cv-actor-badges">
-            <span className="cv-hero-badge" style={{ marginBottom: 0 }}>
+            <span className="cv-actor-dept-badge">
               🎭 {person?.known_for_department || 'Acting'}
             </span>
             {passedActor?.character && (
