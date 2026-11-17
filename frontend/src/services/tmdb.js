@@ -111,11 +111,39 @@ export async function fetchPopularTvShows(page = 1) {
 }
 
 /**
- * Fetch top rated movies list (/movie/top_rated)
+ * Fetch top rated movies & TV shows list (/movie/top_rated & /tv/top_rated)
+ * Combines and sorts both top-rated movies and top-rated TV series by vote_average.
  * @param {number} page
  */
 export async function fetchTopRatedMovies(page = 1) {
-  return tmdbFetch('/movie/top_rated', { language: 'en-US', page });
+  const [moviesData, tvData] = await Promise.all([
+    tmdbFetch('/movie/top_rated', { language: 'en-US', page }),
+    tmdbFetch('/tv/top_rated', { language: 'en-US', page }).catch(() => ({ results: [], total_pages: 1 })),
+  ]);
+
+  const normalizedMovies = (moviesData.results || []).map((item) => ({
+    ...item,
+    media_type: 'movie',
+    title: item.title || item.name || 'Untitled',
+    release_date: item.release_date || item.first_air_date || '',
+  }));
+
+  const normalizedTv = (tvData.results || []).map((item) => ({
+    ...item,
+    media_type: 'tv',
+    title: item.name || item.title || 'Untitled Series',
+    release_date: item.first_air_date || item.release_date || '',
+  }));
+
+  const combined = [...normalizedMovies, ...normalizedTv].sort(
+    (a, b) => (b.vote_average || 0) - (a.vote_average || 0)
+  );
+
+  return {
+    page,
+    results: combined,
+    total_pages: Math.max(moviesData.total_pages || 1, tvData.total_pages || 1),
+  };
 }
 
 /**
@@ -167,7 +195,10 @@ export async function fetchMoviesByCategory(category = 'popular', page = 1) {
   if (category === 'popular_tv') {
     return fetchPopularTvShows(page);
   }
-  const validCategories = ['popular', 'top_rated', 'upcoming', 'now_playing'];
+  if (category === 'top_rated') {
+    return fetchTopRatedMovies(page);
+  }
+  const validCategories = ['popular', 'upcoming', 'now_playing'];
   const safeCategory = validCategories.includes(category) ? category : 'popular';
   return tmdbFetch(`/movie/${safeCategory}`, { language: 'en-US', page });
 }

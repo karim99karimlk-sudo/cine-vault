@@ -9,7 +9,7 @@ const CATEGORY_OPTIONS = [
   { id: 'popular', label: 'Popular Movies', shortLabel: 'Popular' },
   { id: 'trending', label: 'Trending This Week', shortLabel: 'Trending' },
   { id: 'now_playing', label: 'Now Playing in Theaters', shortLabel: 'In Theaters' },
-  { id: 'top_rated', label: 'Top Rated Movies', shortLabel: 'Top Rated' },
+  { id: 'top_rated', label: 'Top Rated Masterpieces', shortLabel: 'Top Rated' },
   { id: 'upcoming', label: 'Upcoming Releases', shortLabel: 'Upcoming' },
   { id: 'popular_tv', label: 'Popular TV Shows', shortLabel: 'TV Shows' },
 ];
@@ -17,8 +17,10 @@ const CATEGORY_OPTIONS = [
 function dedupeMovies(list) {
   const seen = new Set();
   return list.filter((m) => {
-    if (!m || !m.id || seen.has(m.id)) return false;
-    seen.add(m.id);
+    if (!m || !m.id) return false;
+    const key = `${m.media_type || 'movie'}-${m.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 }
@@ -313,7 +315,7 @@ export default function MoviesPage({
           <div className="cv-grid">
             {filteredMovies.map((movie) => (
               <MovieCard
-                key={movie.id}
+                key={`${movie.media_type || 'movie'}-${movie.id}`}
                 movie={movie}
                 genreMap={genreMap}
                 isSaved={isInWatchlist(movie.id)}
