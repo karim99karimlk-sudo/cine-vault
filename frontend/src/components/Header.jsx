@@ -1,21 +1,30 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { searchMovies, getImageUrl } from '../services/tmdb';
+import { useDebounce } from '../hooks/useDebounce';
 import './header.css';
 
 export default function Header({
-  searchQuery = '',
-  onSearchChange = () => {},
   watchlistCount = 0,
+  genreMap = {},
+  onSelectMovie = () => {},
 }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const debouncedQuery = useDebounce(searchQuery.trim(), 400);
+  const searchBoxRef = useRef(null);
+
   const location = useLocation();
   const [searchParams] = useSearchParams();
-
   const currentCategory = searchParams.get('category') || 'popular';
   const pathname = location.pathname;
 
+  // Sticky header scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -24,13 +33,77 @@ export default function Header({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // Fetch search results for floating dropdown
+  useEffect(() => {
+    if (!debouncedQuery) {
+      return;
+    }
+
+    let isMounted = true;
+    searchMovies(debouncedQuery, 1)
+      .then((data) => {
+        if (!isMounted) return;
+        setResults((data.results || []).slice(0, 8));
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setResults([]);
+        setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedQuery]);
+
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
-  const handleSearchInput = (val) => {
-    onSearchChange(val);
-    if (val.trim() && pathname !== '/' && pathname !== '/movies' && pathname !== '/watchlist') {
-      navigate('/movies');
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    if (val.trim()) {
+      setLoading(true);
+      setIsDropdownOpen(true);
+    } else {
+      setResults([]);
+      setLoading(false);
+      setIsDropdownOpen(false);
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setResults([]);
+    setLoading(false);
+    setIsDropdownOpen(false);
+  };
+
+  const handleSelectResult = (movie) => {
+    setIsDropdownOpen(false);
+    onSelectMovie(movie);
   };
 
   return (
@@ -41,7 +114,6 @@ export default function Header({
         className="cv-logo-container"
         onClick={() => {
           closeMobileMenu();
-          onSearchChange('');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       >
@@ -120,26 +192,89 @@ export default function Header({
 
       {/* Header Actions (Search & Profile) */}
       <div className="cv-header-actions">
-        <div className="cv-search-box">
+        <div className="cv-search-box" ref={searchBoxRef}>
           <span className="cv-search-icon">🔍</span>
           <input
             type="text"
             className="cv-search-input"
-            placeholder="Search movies..."
+            placeholder="Search movies & TV shows..."
             value={searchQuery}
-            onChange={(e) => handleSearchInput(e.target.value)}
-            aria-label="Search movies"
+            onChange={handleInputChange}
+            onFocus={() => {
+              if (searchQuery.trim()) setIsDropdownOpen(true);
+            }}
+            aria-label="Search movies and TV shows"
+            aria-expanded={isDropdownOpen}
           />
           {searchQuery && (
             <button
               type="button"
               className="cv-search-clear"
-              onClick={() => onSearchChange('')}
+              onClick={handleClearSearch}
               aria-label="Clear search"
               title="Clear search"
             >
               ✕
             </button>
+          )}
+
+          {/* Floating Search Results Dropdown */}
+          {isDropdownOpen && searchQuery.trim() && (
+            <div className="cv-search-dropdown" role="listbox" aria-label="Search results">
+              {loading ? (
+                <div className="cv-search-dropdown-status">
+                  Searching for "{searchQuery.trim()}"...
+                </div>
+              ) : results.length === 0 ? (
+                <div className="cv-search-dropdown-status">
+                  No results found for "{searchQuery.trim()}"
+                </div>
+              ) : (
+                <ul className="cv-search-results-list">
+                  {results.map((movie) => {
+                    const isTv = movie.media_type === 'tv';
+                    const year = movie.release_date ? movie.release_date.slice(0, 4) : 'TBA';
+                    const rating =
+                      typeof movie.vote_average === 'number' && movie.vote_average > 0
+                        ? movie.vote_average.toFixed(1)
+                        : 'NR';
+                    const primaryGenre =
+                      (movie.genre_ids?.[0] && genreMap[movie.genre_ids[0]]) ||
+                      (isTv ? 'TV Series' : 'Movie');
+
+                    return (
+                      <li key={`${movie.media_type || 'item'}-${movie.id}`}>
+                        <button
+                          type="button"
+                          className="cv-search-result-item"
+                          onClick={() => handleSelectResult(movie)}
+                        >
+                          <img
+                            src={getImageUrl(movie.poster_path, 'w185')}
+                            alt={movie.title}
+                            className="cv-search-result-thumb"
+                            loading="lazy"
+                          />
+                          <div className="cv-search-result-info">
+                            <div className="cv-search-result-title">{movie.title}</div>
+                            <div className="cv-search-result-meta">
+                              <span className={`cv-search-type-tag ${isTv ? 'tv' : 'movie'}`}>
+                                {isTv ? 'TV' : 'Movie'}
+                              </span>
+                              <span>{year}</span>
+                              <span>•</span>
+                              <span>{primaryGenre}</span>
+                              <span>•</span>
+                              <span className="cv-search-result-rating">⭐ {rating}</span>
+                            </div>
+                          </div>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           )}
         </div>
 

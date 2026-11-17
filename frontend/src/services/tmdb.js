@@ -173,17 +173,29 @@ export async function fetchMoviesByCategory(category = 'popular', page = 1) {
 }
 
 /**
- * Search movies by query (/search/movie)
+ * Search movies and TV shows by query (/search/multi)
+ * Normalizes TV fields (name -> title, first_air_date -> release_date) and excludes person entries.
  * @param {string} query
  * @param {number} page
  */
 export async function searchMovies(query, page = 1) {
-  return tmdbFetch('/search/movie', {
+  const data = await tmdbFetch('/search/multi', {
     query,
     include_adult: 'false',
     language: 'en-US',
     page,
   });
+  return {
+    ...data,
+    results: (data.results || [])
+      .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
+      .map((item) => ({
+        ...item,
+        media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie'),
+        title: item.title || item.name || 'Untitled',
+        release_date: item.release_date || item.first_air_date || '',
+      })),
+  };
 }
 
 /**

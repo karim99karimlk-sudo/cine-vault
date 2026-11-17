@@ -8,14 +8,10 @@ import MoviesPage from './pages/MoviesPage';
 import ActorPage from './pages/ActorPage';
 import WatchlistPage from './pages/WatchlistPage';
 import { fetchGenres } from './services/tmdb';
-import { useDebounce } from './hooks/useDebounce';
 import { useWatchlist } from './hooks/useWatchlist';
 import './App.css';
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedQuery = useDebounce(searchQuery.trim(), 400);
-
   const [genres, setGenres] = useState([]);
   const genreMap = useMemo(() => {
     const map = {};
@@ -74,9 +70,9 @@ function App() {
     <BrowserRouter>
       <div className="cv-app">
         <Header
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
           watchlistCount={watchlist.length}
+          genreMap={genreMap}
+          onSelectMovie={setSelectedMovie}
         />
 
         <Routes>
@@ -84,7 +80,6 @@ function App() {
             path="/"
             element={
               <HomePage
-                debouncedQuery={debouncedQuery}
                 genres={genres}
                 genreMap={genreMap}
                 isInWatchlist={isInWatchlist}
@@ -97,7 +92,6 @@ function App() {
             path="/movies"
             element={
               <MoviesPage
-                debouncedQuery={debouncedQuery}
                 genres={genres}
                 genreMap={genreMap}
                 isInWatchlist={isInWatchlist}
@@ -122,7 +116,6 @@ function App() {
             element={
               <WatchlistPage
                 watchlist={watchlist}
-                debouncedQuery={debouncedQuery}
                 genres={genres}
                 genreMap={genreMap}
                 isInWatchlist={isInWatchlist}

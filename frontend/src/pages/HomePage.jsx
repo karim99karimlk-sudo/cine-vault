@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import HeroCarousel from '../components/HeroCarousel';
 import MovieCard from '../components/MovieCard';
-import { SkeletonCard, SkeletonGrid } from '../components/SkeletonCard';
+import { SkeletonCard } from '../components/SkeletonCard';
 import {
   fetchTrendingMovies,
   fetchPopularMovies,
@@ -10,7 +10,6 @@ import {
   fetchNowPlayingMovies,
   fetchTopRatedMovies,
   fetchUpcomingMovies,
-  searchMovies,
 } from '../services/tmdb';
 import './HomePage.css';
 
@@ -24,7 +23,6 @@ function dedupeMovies(list) {
 }
 
 export function HomePage({
-  debouncedQuery = '',
   genres = [],
   genreMap = {},
   isInWatchlist = () => false,
@@ -46,9 +44,6 @@ export function HomePage({
   const [homeError, setHomeError] = useState(null);
   const [homeRetryTick, setHomeRetryTick] = useState(0);
 
-  // Search results state when user types in search bar while on Home
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
   const rowRefs = useRef({});
 
   const scrollRow = (sectionKey, direction) => {
@@ -97,27 +92,6 @@ export function HomePage({
     };
   }, [homeRetryTick]);
 
-  // Search movies if debouncedQuery is active on Home
-  useEffect(() => {
-    if (!debouncedQuery) return;
-
-    let isMounted = true;
-    searchMovies(debouncedQuery, 1)
-      .then((res) => {
-        if (!isMounted) return;
-        setSearchResults(res.results || []);
-        setSearchLoading(false);
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setSearchLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [debouncedQuery]);
-
   // Featured hero carousel movies (top 8 trending/popular with backdrops)
   const heroSlides = useMemo(() => {
     const combined = dedupeMovies([
@@ -132,8 +106,7 @@ export function HomePage({
     return list.filter((m) => Array.isArray(m.genre_ids) && m.genre_ids.includes(selectedGenre));
   };
 
-  const isSearching = debouncedQuery.length > 0;
-  const showHero = !isSearching && !selectedGenre && heroSlides.length > 0;
+  const showHero = !selectedGenre && heroSlides.length > 0;
 
   const discoveryRows = [
     { key: 'trending', title: 'Trending This Week', items: filterByGenre(homeSections.trending) },
@@ -147,7 +120,7 @@ export function HomePage({
   return (
     <>
       {/* HERO CAROUSEL */}
-      {homeLoading && !isSearching && (
+      {homeLoading && (
         <section className="cv-hero cv-skeleton-hero" aria-hidden="true">
           <div className="cv-hero-content">
             <div
@@ -184,7 +157,7 @@ export function HomePage({
       <main
         className="cv-container"
         id="movies"
-        style={!showHero && !(homeLoading && !isSearching) ? { marginTop: '85px' } : undefined}
+        style={!showHero && !homeLoading ? { marginTop: '85px' } : undefined}
       >
         {homeError && (
           <div className="cv-error-banner" role="alert">
@@ -231,120 +204,84 @@ export function HomePage({
           </div>
         )}
 
-        {/* Search Results or Categorized Discovery Rows */}
-        {isSearching ? (
-          <section className="cv-catalog-section">
-            <div className="cv-section-header">
-              <h2 className="cv-section-title" style={{ marginBottom: 0 }}>
-                Search Results for "{debouncedQuery}"
-              </h2>
-              <Link to="/movies" className="cv-explore-link">
-                Advanced Search in Movies →
-              </Link>
-            </div>
-
-            {searchLoading ? (
-              <SkeletonGrid count={10} />
-            ) : filterByGenre(searchResults).length === 0 ? (
-              <div className="cv-empty-state">
-                <div className="cv-empty-icon">🎬</div>
-                <h3>No Movies Found</h3>
-                <p>Try searching for another title or clearing the genre filter.</p>
-              </div>
-            ) : (
-              <div className="cv-grid">
-                {filterByGenre(searchResults).map((movie) => (
-                  <MovieCard
-                    key={movie.id}
-                    movie={movie}
-                    genreMap={genreMap}
-                    isSaved={isInWatchlist(movie.id)}
-                    onSelect={onSelectMovie}
-                    onToggleWatchlist={onToggleWatchlist}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-        ) : (
-          <div className="cv-discovery-sections">
-            {discoveryRows.map((section) => (
-              <section key={section.key} className="cv-category-block">
-                <div className="cv-section-header">
-                  <h2 className="cv-section-title" style={{ marginBottom: 0 }}>
-                    {section.title}
-                  </h2>
-                  <div className="cv-section-actions">
-                    {section.items.length > 0 && (
-                      <div className="cv-carousel-nav-btns">
-                        <button
-                          type="button"
-                          className="cv-carousel-nav-btn"
-                          onClick={() => scrollRow(section.key, 'left')}
-                          aria-label={`Scroll ${section.title} left`}
-                        >
-                          ‹
-                        </button>
-                        <button
-                          type="button"
-                          className="cv-carousel-nav-btn"
-                          onClick={() => scrollRow(section.key, 'right')}
-                          aria-label={`Scroll ${section.title} right`}
-                        >
-                          ›
-                        </button>
-                      </div>
-                    )}
-                    <Link
-                      to={`/movies?category=${section.key}`}
-                      className="cv-explore-link"
-                    >
-                      Explore All →
-                    </Link>
-                  </div>
+        {/* Categorized Discovery Rows */}
+        <div className="cv-discovery-sections">
+          {discoveryRows.map((section) => (
+            <section key={section.key} className="cv-category-block">
+              <div className="cv-section-header">
+                <h2 className="cv-section-title" style={{ marginBottom: 0 }}>
+                  {section.title}
+                </h2>
+                <div className="cv-section-actions">
+                  {section.items.length > 0 && (
+                    <div className="cv-carousel-nav-btns">
+                      <button
+                        type="button"
+                        className="cv-carousel-nav-btn"
+                        onClick={() => scrollRow(section.key, 'left')}
+                        aria-label={`Scroll ${section.title} left`}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="cv-carousel-nav-btn"
+                        onClick={() => scrollRow(section.key, 'right')}
+                        aria-label={`Scroll ${section.title} right`}
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                  <Link
+                    to={`/movies?category=${section.key}`}
+                    className="cv-explore-link"
+                  >
+                    Explore All →
+                  </Link>
                 </div>
+              </div>
 
-                {homeLoading ? (
-                  <div className="cv-trending-carousel" aria-busy="true">
-                    {Array.from({ length: 8 }).map((_, idx) => (
-                      <div key={idx} className="cv-trending-carousel-item">
-                        <SkeletonCard />
+              {homeLoading ? (
+                <div className="cv-trending-carousel" aria-busy="true">
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <div key={idx} className="cv-trending-carousel-item">
+                      <SkeletonCard />
+                    </div>
+                  ))}
+                </div>
+              ) : section.items.length === 0 ? (
+                <div className="cv-empty-state" style={{ padding: '2rem' }}>
+                  <p>No titles in {section.title} match the selected genre.</p>
+                </div>
+              ) : (
+                <div className="cv-trending-carousel-wrap">
+                  <div
+                    className="cv-trending-carousel"
+                    ref={(el) => {
+                      rowRefs.current[section.key] = el;
+                    }}
+                  >
+                    {section.items.map((movie) => (
+                      <div
+                        key={`${movie.media_type || 'item'}-${movie.id}`}
+                        className="cv-trending-carousel-item"
+                      >
+                        <MovieCard
+                          movie={movie}
+                          genreMap={genreMap}
+                          isSaved={isInWatchlist(movie.id)}
+                          onSelect={onSelectMovie}
+                          onToggleWatchlist={onToggleWatchlist}
+                        />
                       </div>
                     ))}
                   </div>
-                ) : section.items.length === 0 ? (
-                  <div className="cv-empty-state" style={{ padding: '2rem' }}>
-                    <p>No titles in {section.title} match the selected genre.</p>
-                  </div>
-                ) : (
-                  <div className="cv-trending-carousel-wrap">
-                    <div
-                      className="cv-trending-carousel"
-                      ref={(el) => {
-                        rowRefs.current[section.key] = el;
-                      }}
-                    >
-                      {section.items.map((movie) => (
-                        <div
-                          key={`${movie.media_type || 'item'}-${movie.id}`}
-                          className="cv-trending-carousel-item"
-                        >
-                          <MovieCard
-                            movie={movie}
-                            genreMap={genreMap}
-                            isSaved={isInWatchlist(movie.id)}
-                            onSelect={onSelectMovie}
-                            onToggleWatchlist={onToggleWatchlist}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
-            ))}
-          </div>
-        )}
+                </div>
+              )}
+            </section>
+          ))}
+        </div>
       </main>
     </>
   );
