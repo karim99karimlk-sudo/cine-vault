@@ -94,6 +94,23 @@ export async function fetchPopularMovies(page = 1) {
 }
 
 /**
+ * Fetch popular TV shows list (/tv/popular) with normalized title/release_date fields
+ * @param {number} page
+ */
+export async function fetchPopularTvShows(page = 1) {
+  const data = await tmdbFetch('/tv/popular', { language: 'en-US', page });
+  return {
+    ...data,
+    results: (data.results || []).map((item) => ({
+      ...item,
+      media_type: 'tv',
+      title: item.name || item.title || 'Untitled Series',
+      release_date: item.first_air_date || item.release_date || '',
+    })),
+  };
+}
+
+/**
  * Fetch top rated movies list (/movie/top_rated)
  * @param {number} page
  */
@@ -127,13 +144,16 @@ export async function fetchTrendingMovies(timeWindow = 'week', page = 1) {
 }
 
 /**
- * Fetch movies by category key ('popular' | 'top_rated' | 'upcoming' | 'now_playing' | 'trending')
- * @param {'popular'|'top_rated'|'upcoming'|'now_playing'|'trending'} category
+ * Fetch movies or TV shows by category key ('popular' | 'popular_tv' | 'top_rated' | 'upcoming' | 'now_playing' | 'trending')
+ * @param {'popular'|'popular_tv'|'top_rated'|'upcoming'|'now_playing'|'trending'} category
  * @param {number} page
  */
 export async function fetchMoviesByCategory(category = 'popular', page = 1) {
   if (category === 'trending') {
     return fetchTrendingMovies('week', page);
+  }
+  if (category === 'popular_tv') {
+    return fetchPopularTvShows(page);
   }
   const validCategories = ['popular', 'top_rated', 'upcoming', 'now_playing'];
   const safeCategory = validCategories.includes(category) ? category : 'popular';
@@ -166,11 +186,39 @@ export async function fetchMovieDetails(movieId) {
 }
 
 /**
- * Fetch official TMDB movie genre list (/genre/movie/list)
+ * Fetch full TV show details including credits and videos (/tv/{id}?append_to_response=credits,videos)
+ * @param {number|string} tvId
+ */
+export async function fetchTvDetails(tvId) {
+  const data = await tmdbFetch(`/tv/${tvId}`, {
+    append_to_response: 'credits,videos',
+    language: 'en-US',
+  });
+  return {
+    ...data,
+    media_type: 'tv',
+    title: data.name || data.title || 'Untitled Series',
+    release_date: data.first_air_date || data.release_date || '',
+    runtime: data.episode_run_time?.[0] || null,
+  };
+}
+
+/**
+ * Fetch official TMDB movie & TV genre lists (/genre/movie/list & /genre/tv/list)
  * @returns {Promise<{ genres: Array<{ id: number, name: string }> }>}
  */
 export async function fetchGenres() {
-  return tmdbFetch('/genre/movie/list', { language: 'en-US' });
+  const [movieGenres, tvGenres] = await Promise.all([
+    tmdbFetch('/genre/movie/list', { language: 'en-US' }),
+    tmdbFetch('/genre/tv/list', { language: 'en-US' }).catch(() => ({ genres: [] })),
+  ]);
+  const map = new Map();
+  [...(movieGenres.genres || []), ...(tvGenres.genres || [])].forEach((g) => {
+    if (g && g.id && !map.has(g.id)) {
+      map.set(g.id, g);
+    }
+  });
+  return { genres: Array.from(map.values()) };
 }
 
 /**

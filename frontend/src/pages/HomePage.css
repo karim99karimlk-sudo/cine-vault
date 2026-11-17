@@ -343,20 +343,31 @@
 /* CATEGORY SWITCHER PILLS */
 .cv-category-pills {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.4rem;
   background: var(--bg-secondary);
   padding: 0.3rem;
   border-radius: 50px;
   border: 1px solid var(--border-color);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cv-category-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .cv-pill-btn {
-  padding: 0.45rem 1.1rem;
+  padding: 0.45rem 1.05rem;
   border-radius: 50px;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
   transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cv-pill-btn:hover,
@@ -1117,6 +1128,14 @@
     width: 34px;
     height: 48px;
   }
+  .cv-section-header {
+    align-items: flex-start;
+  }
+  .cv-category-pills {
+    width: 100%;
+    border-radius: 14px;
+    padding: 0.35rem;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1138,6 +1157,17 @@
   }
   .cv-hero-title {
     font-size: 2rem;
+  }
+  .cv-section-title {
+    font-size: 1.35rem;
+  }
+  .cv-pill-btn {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+  }
+  .cv-tab-btn {
+    padding: 0.45rem 1rem;
+    font-size: 0.82rem;
   }
   .cv-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

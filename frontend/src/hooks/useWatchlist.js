@@ -43,10 +43,11 @@ export function useWatchlist() {
         added = true;
         const normalizedMovie = {
           id: movie.id,
+          media_type: movie.media_type || 'movie',
           title: movie.title || movie.name || 'Untitled',
           poster_path: movie.poster_path || null,
           backdrop_path: movie.backdrop_path || null,
-          release_date: movie.release_date || '',
+          release_date: movie.release_date || movie.first_air_date || '',
           vote_average: movie.vote_average ?? 0,
           genre_ids: movie.genre_ids || (movie.genres ? movie.genres.map((g) => g.id) : []),
           overview: movie.overview || '',

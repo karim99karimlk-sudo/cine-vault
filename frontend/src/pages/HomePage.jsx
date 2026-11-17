@@ -9,6 +9,7 @@ import ActorPage from './ActorPage';
 import {
   fetchTrendingMovies,
   fetchPopularMovies,
+  fetchPopularTvShows,
   fetchNowPlayingMovies,
   fetchTopRatedMovies,
   fetchUpcomingMovies,
@@ -23,6 +24,7 @@ import './HomePage.css';
 const CATEGORY_LABELS = {
   trending: 'Trending This Week',
   popular: 'Popular Movies',
+  popular_tv: 'Popular TV Shows',
   now_playing: 'Now Playing in Theaters',
   top_rated: 'Top Rated Movies',
   upcoming: 'Upcoming Releases',
@@ -59,6 +61,7 @@ export function HomePage() {
   const [homeSections, setHomeSections] = useState({
     trending: [],
     popular: [],
+    popularTv: [],
     nowPlaying: [],
     topRated: [],
     upcoming: [],
@@ -119,16 +122,18 @@ export function HomePage() {
       fetchGenres(),
       fetchTrendingMovies('week', 1),
       fetchPopularMovies(1),
+      fetchPopularTvShows(1),
       fetchNowPlayingMovies(1),
       fetchTopRatedMovies(1),
       fetchUpcomingMovies(1),
     ])
-      .then(([genreRes, trendingRes, popularRes, nowPlayingRes, topRatedRes, upcomingRes]) => {
+      .then(([genreRes, trendingRes, popularRes, popularTvRes, nowPlayingRes, topRatedRes, upcomingRes]) => {
         if (!isMounted) return;
         setGenres(genreRes.genres || []);
         setHomeSections({
           trending: trendingRes.results || [],
           popular: popularRes.results || [],
+          popularTv: popularTvRes.results || [],
           nowPlaying: nowPlayingRes.results || [],
           topRated: topRatedRes.results || [],
           upcoming: upcomingRes.results || [],
@@ -404,12 +409,13 @@ export function HomePage() {
               </div>
             )}
 
-            {/* Categorized Discovery Rows (10 movies each across 5 categories) */}
+            {/* Categorized Discovery Rows (10 items each across 6 categories) */}
             {showCategorizedRows && (
               <div className="cv-discovery-sections">
                 {[
                   { key: 'trending', title: 'Trending This Week', items: homeSections.trending },
                   { key: 'popular', title: 'Popular Movies', items: homeSections.popular },
+                  { key: 'popular_tv', title: 'Popular TV Shows', items: homeSections.popularTv },
                   { key: 'now_playing', title: 'Now Playing in Theaters', items: homeSections.nowPlaying },
                   { key: 'top_rated', title: 'Top Rated Masterpieces', items: homeSections.topRated },
                   { key: 'upcoming', title: 'Upcoming Releases', items: homeSections.upcoming },
@@ -482,6 +488,7 @@ export function HomePage() {
                     {[
                       { id: 'trending', label: 'Trending' },
                       { id: 'popular', label: 'Popular' },
+                      { id: 'popular_tv', label: 'TV Shows' },
                       { id: 'now_playing', label: 'In Theaters' },
                       { id: 'top_rated', label: 'Top Rated' },
                       { id: 'upcoming', label: 'Upcoming' },

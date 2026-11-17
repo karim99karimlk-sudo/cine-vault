@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchMovieDetails, getImageUrl } from '../services/tmdb';
+import { fetchMovieDetails, fetchTvDetails, getImageUrl } from '../services/tmdb';
 
 function formatRuntime(minutes) {
   if (!minutes || minutes <= 0) return 'N/A';
@@ -24,8 +24,10 @@ export default function MovieModal({
     if (!movie?.id) return;
 
     let isMounted = true;
+    const isTvShow = movie.media_type === 'tv' || (!movie.title && Boolean(movie.name));
+    const fetchDetails = isTvShow ? fetchTvDetails : fetchMovieDetails;
 
-    fetchMovieDetails(movie.id)
+    fetchDetails(movie.id)
       .then((data) => {
         if (isMounted) {
           setDetails(data);
@@ -35,7 +37,7 @@ export default function MovieModal({
       })
       .catch((err) => {
         if (isMounted) {
-          setError(err.message || 'Failed to load movie details.');
+          setError(err.message || 'Failed to load details.');
           setLoading(false);
         }
       });
@@ -43,7 +45,7 @@ export default function MovieModal({
     return () => {
       isMounted = false;
     };
-  }, [movie?.id]);
+  }, [movie?.id, movie?.media_type, movie?.title, movie?.name]);
 
   // Close on Escape key & lock body scroll
   useEffect(() => {
@@ -72,9 +74,13 @@ export default function MovieModal({
   const genres = details?.genres || [];
   const cast = details?.credits?.cast?.slice(0, 8) || [];
   const director =
-    details?.credits?.crew?.find((member) => member.job === 'Director')?.name || 'N/A';
+    details?.credits?.crew?.find((member) => member.job === 'Director')?.name ||
+    details?.created_by?.map((c) => c.name).join(', ') ||
+    'N/A';
   const studio =
-    details?.production_companies?.slice(0, 2).map((c) => c.name).join(' / ') || 'N/A';
+    details?.production_companies?.slice(0, 2).map((c) => c.name).join(' / ') ||
+    details?.networks?.slice(0, 2).map((n) => n.name).join(' / ') ||
+    'N/A';
 
   // Find official YouTube Trailer (or fallback to any YouTube video)
   const videos = details?.videos?.results || [];
