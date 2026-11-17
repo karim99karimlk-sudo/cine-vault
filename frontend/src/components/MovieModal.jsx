@@ -13,6 +13,7 @@ export default function MovieModal({
   isSaved = false,
   onClose = () => {},
   onToggleWatchlist = () => {},
+  onSelectActor = () => {},
 }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -204,11 +205,20 @@ export default function MovieModal({
               {cast.length > 0 && (
                 <div className="cv-cast-section">
                   <div className="cv-crew-label" style={{ marginBottom: '0.9rem' }}>
-                    Top Cast
+                    Top Cast <span className="cv-cast-hint">(Click an actor to view profile)</span>
                   </div>
                   <div className="cv-cast-grid">
                     {cast.map((actor) => (
-                      <div key={actor.cast_id || actor.id} className="cv-cast-card">
+                      <a
+                        key={actor.cast_id || actor.id}
+                        href={`#actor/${actor.id}`}
+                        className="cv-cast-card cv-cast-link"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onSelectActor(actor);
+                        }}
+                        title={`View ${actor.name}'s profile and movies`}
+                      >
                         <img
                           src={getImageUrl(actor.profile_path, 'w185')}
                           alt={actor.name}
@@ -219,7 +229,7 @@ export default function MovieModal({
                           <div className="cv-cast-name">{actor.name}</div>
                           <div className="cv-cast-character">{actor.character}</div>
                         </div>
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>

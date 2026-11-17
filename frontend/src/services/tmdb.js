@@ -110,12 +110,32 @@ export async function fetchUpcomingMovies(page = 1) {
 }
 
 /**
- * Fetch movies by category key ('popular' | 'top_rated' | 'upcoming')
- * @param {'popular'|'top_rated'|'upcoming'} category
+ * Fetch now playing movies in theaters (/movie/now_playing)
+ * @param {number} page
+ */
+export async function fetchNowPlayingMovies(page = 1) {
+  return tmdbFetch('/movie/now_playing', { language: 'en-US', page });
+}
+
+/**
+ * Fetch trending movies (/trending/movie/{time_window})
+ * @param {'day'|'week'} timeWindow
+ * @param {number} page
+ */
+export async function fetchTrendingMovies(timeWindow = 'week', page = 1) {
+  return tmdbFetch(`/trending/movie/${timeWindow}`, { language: 'en-US', page });
+}
+
+/**
+ * Fetch movies by category key ('popular' | 'top_rated' | 'upcoming' | 'now_playing' | 'trending')
+ * @param {'popular'|'top_rated'|'upcoming'|'now_playing'|'trending'} category
  * @param {number} page
  */
 export async function fetchMoviesByCategory(category = 'popular', page = 1) {
-  const validCategories = ['popular', 'top_rated', 'upcoming'];
+  if (category === 'trending') {
+    return fetchTrendingMovies('week', page);
+  }
+  const validCategories = ['popular', 'top_rated', 'upcoming', 'now_playing'];
   const safeCategory = validCategories.includes(category) ? category : 'popular';
   return tmdbFetch(`/movie/${safeCategory}`, { language: 'en-US', page });
 }
@@ -151,4 +171,15 @@ export async function fetchMovieDetails(movieId) {
  */
 export async function fetchGenres() {
   return tmdbFetch('/genre/movie/list', { language: 'en-US' });
+}
+
+/**
+ * Fetch full actor/person details including movie credits (/person/{id}?append_to_response=movie_credits)
+ * @param {number|string} personId
+ */
+export async function fetchActorDetails(personId) {
+  return tmdbFetch(`/person/${personId}`, {
+    append_to_response: 'movie_credits',
+    language: 'en-US',
+  });
 }
