@@ -135,12 +135,24 @@ export async function fetchNowPlayingMovies(page = 1) {
 }
 
 /**
- * Fetch trending movies (/trending/movie/{time_window})
+ * Fetch trending movies and TV shows (/trending/all/{time_window})
+ * Normalizes TV fields (name -> title, first_air_date -> release_date) and excludes person entries.
  * @param {'day'|'week'} timeWindow
  * @param {number} page
  */
 export async function fetchTrendingMovies(timeWindow = 'week', page = 1) {
-  return tmdbFetch(`/trending/movie/${timeWindow}`, { language: 'en-US', page });
+  const data = await tmdbFetch(`/trending/all/${timeWindow}`, { language: 'en-US', page });
+  return {
+    ...data,
+    results: (data.results || [])
+      .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
+      .map((item) => ({
+        ...item,
+        media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie'),
+        title: item.title || item.name || 'Untitled',
+        release_date: item.release_date || item.first_air_date || '',
+      })),
+  };
 }
 
 /**
