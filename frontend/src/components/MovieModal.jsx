@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchMovieDetails, fetchTvDetails, getImageUrl } from '../services/tmdb';
 
 function formatRuntime(minutes) {
@@ -13,7 +14,6 @@ export default function MovieModal({
   isSaved = false,
   onClose = () => {},
   onToggleWatchlist = () => {},
-  onSelectActor = () => {},
 }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -215,14 +215,12 @@ export default function MovieModal({
                   </div>
                   <div className="cv-cast-grid">
                     {cast.map((actor) => (
-                      <a
+                      <Link
                         key={actor.cast_id || actor.id}
-                        href={`#actor/${actor.id}`}
+                        to={`/actor/${actor.id}`}
+                        state={{ actor }}
                         className="cv-cast-card cv-cast-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onSelectActor(actor);
-                        }}
+                        onClick={onClose}
                         title={`View ${actor.name}'s profile and movies`}
                       >
                         <img
@@ -235,7 +233,7 @@ export default function MovieModal({
                           <div className="cv-cast-name">{actor.name}</div>
                           <div className="cv-cast-character">{actor.character}</div>
                         </div>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>

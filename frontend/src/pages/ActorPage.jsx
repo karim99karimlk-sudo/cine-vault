@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { fetchActorDetails, getImageUrl } from '../services/tmdb';
 import MovieCard from '../components/MovieCard';
 import { SkeletonGrid } from '../components/SkeletonCard';
@@ -17,13 +18,16 @@ function calculateAge(birthday, deathday) {
 }
 
 export default function ActorPage({
-  actor,
   genreMap = {},
   isInWatchlist = () => false,
   onSelectMovie = () => {},
   onToggleWatchlist = () => {},
-  onBack = () => {},
 }) {
+  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const passedActor = location.state?.actor || null;
+
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,14 +36,14 @@ export default function ActorPage({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [actor?.id]);
+  }, [id]);
 
   useEffect(() => {
-    if (!actor?.id) return;
+    if (!id) return;
 
     let isMounted = true;
 
-    fetchActorDetails(actor.id)
+    fetchActorDetails(id)
       .then((data) => {
         if (isMounted) {
           setPerson(data);
@@ -57,7 +61,7 @@ export default function ActorPage({
     return () => {
       isMounted = false;
     };
-  }, [actor?.id]);
+  }, [id]);
 
   // Deduplicate and sort actor's movie credits
   const filmography = useMemo(() => {
@@ -78,16 +82,13 @@ export default function ActorPage({
         const dateB = b.release_date || '0000-00-00';
         return dateB.localeCompare(dateA);
       }
-      // Default: sort by vote_count & popularity for best "Known For" ordering
       const scoreA = (a.popularity || 0) + (a.vote_count || 0) * 0.05;
       const scoreB = (b.popularity || 0) + (b.vote_count || 0) * 0.05;
       return scoreB - scoreA;
     });
   }, [person, sortBy]);
 
-  if (!actor) return null;
-
-  const data = person || actor;
+  const data = person || passedActor || { id, name: 'Actor Profile' };
   const age = calculateAge(person?.birthday, person?.deathday);
   const biography = person?.biography?.trim() || '';
   const isLongBio = biography.length > 550;
@@ -98,8 +99,12 @@ export default function ActorPage({
     <div className="cv-container cv-actor-page">
       {/* Top Back Navigation */}
       <div className="cv-actor-topbar">
-        <button type="button" className="cv-btn cv-btn-secondary cv-btn-sm" onClick={onBack}>
-          ← Back to Movies
+        <button
+          type="button"
+          className="cv-btn cv-btn-secondary cv-btn-sm"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
         </button>
       </div>
 
@@ -126,9 +131,9 @@ export default function ActorPage({
             <span className="cv-hero-badge" style={{ marginBottom: 0 }}>
               🎭 {person?.known_for_department || 'Acting'}
             </span>
-            {actor.character && (
+            {passedActor?.character && (
               <span className="cv-genre-tag">
-                Role: <strong>{actor.character}</strong>
+                Role: <strong>{passedActor.character}</strong>
               </span>
             )}
           </div>
@@ -137,10 +142,22 @@ export default function ActorPage({
 
           {loading ? (
             <div className="cv-actor-skeleton-info" aria-hidden="true">
-              <div className="cv-skeleton-line cv-skeleton-shimmer" style={{ width: '55%', height: '20px', marginBottom: '1rem' }} />
-              <div className="cv-skeleton-line cv-skeleton-shimmer" style={{ width: '95%', height: '16px', marginBottom: '0.6rem' }} />
-              <div className="cv-skeleton-line cv-skeleton-shimmer" style={{ width: '90%', height: '16px', marginBottom: '0.6rem' }} />
-              <div className="cv-skeleton-line cv-skeleton-shimmer" style={{ width: '75%', height: '16px' }} />
+              <div
+                className="cv-skeleton-line cv-skeleton-shimmer"
+                style={{ width: '55%', height: '20px', marginBottom: '1rem' }}
+              />
+              <div
+                className="cv-skeleton-line cv-skeleton-shimmer"
+                style={{ width: '95%', height: '16px', marginBottom: '0.6rem' }}
+              />
+              <div
+                className="cv-skeleton-line cv-skeleton-shimmer"
+                style={{ width: '90%', height: '16px', marginBottom: '0.6rem' }}
+              />
+              <div
+                className="cv-skeleton-line cv-skeleton-shimmer"
+                style={{ width: '75%', height: '16px' }}
+              />
             </div>
           ) : (
             <>
