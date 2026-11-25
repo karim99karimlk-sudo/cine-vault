@@ -1,5 +1,7 @@
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/';
+const DEFAULT_TMDB_READ_TOKEN =
+  'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlMzdmYmJiM2NjZTEwODc0ZTdmODA5NGIyOWUwMWZjZCIsIm5iZiI6MTc5NDg0NTgyNC43ODQ5OTk4LCJzdWIiOiI2YWZiMmM4MDgwNTM1ZGI4ODk2ZTQ5N2IiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.P_IA_x2uRkZU22CwturzHTy3RdbTyDjwL_O3xyDCm5A';
 
 const FALLBACK_POSTER =
   'data:image/svg+xml;utf8,' +
@@ -47,7 +49,7 @@ export function getImageUrl(path, size = 'w500') {
  * @param {Record<string, string|number|undefined>} params - Query parameters
  */
 async function tmdbFetch(endpoint, params = {}) {
-  const token = import.meta.env.VITE_TMDB_READ_TOKEN;
+  const token = import.meta.env.VITE_TMDB_READ_TOKEN || DEFAULT_TMDB_READ_TOKEN;
   if (!token) {
     throw new Error(
       'Missing VITE_TMDB_READ_TOKEN in environment variables (.env). Please add your TMDB API Read Access Token.'
